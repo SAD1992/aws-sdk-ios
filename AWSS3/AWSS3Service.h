@@ -1,5 +1,5 @@
 //
-// Copyright 2010-2016 Amazon.com, Inc. or its affiliates. All Rights Reserved.
+// Copyright 2010-2017 Amazon.com, Inc. or its affiliates. All Rights Reserved.
 //
 // Licensed under the Apache License, Version 2.0 (the "License").
 // You may not use this file except in compliance with the License.
@@ -16,6 +16,7 @@
 #import <Foundation/Foundation.h>
 #import <AWSCore/AWSCore.h>
 #import "AWSS3Model.h"
+#import "AWSS3Resources.h"
 
 NS_ASSUME_NONNULL_BEGIN
 
@@ -38,13 +39,13 @@ NS_ASSUME_NONNULL_BEGIN
  
  *Swift*
 
-     func application(application: UIApplication, didFinishLaunchingWithOptions launchOptions: [NSObject: AnyObject]?) -> Bool {
-         let credentialProvider = AWSCognitoCredentialsProvider(regionType: .USEast1, identityPoolId: "YourIdentityPoolId")
-         let configuration = AWSServiceConfiguration(region: .USEast1, credentialsProvider: credentialProvider)
-         AWSServiceManager.defaultServiceManager().defaultServiceConfiguration = configuration
-
-         return true
-     }
+     func application(_ application: UIApplication, didFinishLaunchingWithOptions launchOptions: [UIApplicationLaunchOptionsKey: Any]?) -> Bool {
+        let credentialProvider = AWSCognitoCredentialsProvider(regionType: .USEast1, identityPoolId: "YourIdentityPoolId")
+        let configuration = AWSServiceConfiguration(region: .USEast1, credentialsProvider: credentialProvider)
+        AWSServiceManager.default().defaultServiceConfiguration = configuration
+ 
+        return true
+    }
 
  *Objective-C*
 
@@ -62,7 +63,7 @@ NS_ASSUME_NONNULL_BEGIN
 
  *Swift*
 
-     let S3 = AWSS3.defaultS3()
+     let S3 = AWSS3.default()
 
  *Objective-C*
 
@@ -79,13 +80,13 @@ NS_ASSUME_NONNULL_BEGIN
 
  *Swift*
 
-     func application(application: UIApplication, didFinishLaunchingWithOptions launchOptions: [NSObject: AnyObject]?) -> Bool {
-         let credentialProvider = AWSCognitoCredentialsProvider(regionType: .USEast1, identityPoolId: "YourIdentityPoolId")
-         let configuration = AWSServiceConfiguration(region: .USWest2, credentialsProvider: credentialProvider)
-         AWSS3.registerS3WithConfiguration(configuration, forKey: "USWest2S3")
-
-         return true
-     }
+     func application(_ application: UIApplication, didFinishLaunchingWithOptions launchOptions: [UIApplicationLaunchOptionsKey: Any]?) -> Bool {
+        let credentialProvider = AWSCognitoCredentialsProvider(regionType: .USEast1, identityPoolId: "YourIdentityPoolId")
+        let configuration = AWSServiceConfiguration(region: .USWest2, credentialsProvider: credentialProvider)
+        AWSS3.register(with: configuration!, forKey: "USWest2S3")
+ 
+        return true
+    }
 
  *Objective-C*
 
@@ -118,19 +119,19 @@ NS_ASSUME_NONNULL_BEGIN
 + (void)registerS3WithConfiguration:(AWSServiceConfiguration *)configuration forKey:(NSString *)key;
 
 /**
- Retrieves the service client associated with the key. You need to call `+ registerS3WithConfiguration:forKey:` before invoking this method. If `+ registerS3WithConfiguration:forKey:` has not been called in advance or the key does not exist, this method returns `nil`.
+ Retrieves the service client associated with the key. You need to call `+ registerS3WithConfiguration:forKey:` before invoking this method.
 
  For example, set the default service configuration in `- application:didFinishLaunchingWithOptions:`
 
  *Swift*
 
-     func application(application: UIApplication, didFinishLaunchingWithOptions launchOptions: [NSObject: AnyObject]?) -> Bool {
-         let credentialProvider = AWSCognitoCredentialsProvider(regionType: .USEast1, identityPoolId: "YourIdentityPoolId")
-         let configuration = AWSServiceConfiguration(region: .USWest2, credentialsProvider: credentialProvider)
-         AWSS3.registerS3WithConfiguration(configuration, forKey: "USWest2S3")
-
-         return true
-     }
+     func application(_ application: UIApplication, didFinishLaunchingWithOptions launchOptions: [UIApplicationLaunchOptionsKey: Any]?) -> Bool {
+        let credentialProvider = AWSCognitoCredentialsProvider(regionType: .USEast1, identityPoolId: "YourIdentityPoolId")
+        let configuration = AWSServiceConfiguration(region: .USWest2, credentialsProvider: credentialProvider)
+        AWSS3.register(with: configuration!, forKey: "USWest2S3")
+ 
+        return true
+    }
 
  *Objective-C*
 
@@ -169,21 +170,6 @@ NS_ASSUME_NONNULL_BEGIN
  @param key A string to identify the service client.
  */
 + (void)removeS3ForKey:(NSString *)key;
-
-/**
- Instantiates the service client with the given service configuration.
- 
- @warning This method has been deprecated. Use `+ registerS3WithConfiguration:forKey:` and `+ S3ForKey:` instead.
- 
- @warning Once the client is instantiated, do not modify the configuration object. It may cause unspecified behaviors.
- 
- @warning Unlike the singleton method, you are responsible for maintaining a strong reference to this object. If the service client is released before completing a service request, the request may fail with unspecified errors.
- 
- @param configuration The service configuration object.
- 
- @return An instance of the service client.
- */
-- (instancetype)initWithConfiguration:(AWSServiceConfiguration *)configuration __attribute__ ((deprecated("Use '+ registerS3WithConfiguration:forKey:' and '+ S3ForKey:' instead.")));
 
 /**
  <p>Aborts a multipart upload.</p><p>To verify that all parts have been removed, so you don't get charged for the part storage, you should call the List Parts operation and ensure the parts list is empty.</p>
@@ -234,6 +220,31 @@ NS_ASSUME_NONNULL_BEGIN
  @see AWSS3CompleteMultipartUploadOutput
  */
 - (void)completeMultipartUpload:(AWSS3CompleteMultipartUploadRequest *)request completionHandler:(void (^ _Nullable)(AWSS3CompleteMultipartUploadOutput * _Nullable response, NSError * _Nullable error))completionHandler;
+
+/**
+ Creates a copy of an object that is already stored in Amazon S3.
+ 
+ @param request A container for the necessary parameters to execute the CopyObject service method.
+
+ @return An instance of `AWSTask`. On successful execution, `task.result` will contain an instance of `AWSS3ReplicateObjectOutput`. On failed execution, `task.error` may contain an `NSError` with `AWSS3ErrorDomain` domain and the following error code: `AWSS3ErrorObjectNotInActiveTier`.
+ 
+ @see AWSS3ReplicateObjectRequest
+ @see AWSS3ReplicateObjectOutput
+ */
+- (AWSTask<AWSS3ReplicateObjectOutput *> *)replicateObject:(AWSS3ReplicateObjectRequest *)request;
+
+/**
+ Creates a copy of an object that is already stored in Amazon S3.
+ 
+ @param request A container for the necessary parameters to execute the CopyObject service method.
+ @param completionHandler The completion handler to call when the load request is complete.
+                          `response` - A response object, or `nil` if the request failed.
+                          `error` - An error object that indicates why the request failed, or `nil` if the request was successful. On failed execution, `error` may contain an `NSError` with `AWSS3ErrorDomain` domain and the following error code: `AWSS3ErrorObjectNotInActiveTier`.
+ 
+ @see AWSS3ReplicateObjectRequest
+ @see AWSS3ReplicateObjectOutput
+ */
+- (void)replicateObject:(AWSS3ReplicateObjectRequest *)request completionHandler:(void (^ _Nullable)(AWSS3ReplicateObjectOutput * _Nullable response, NSError * _Nullable error))completionHandler;
 
 /**
  Creates a new bucket.
@@ -308,6 +319,28 @@ NS_ASSUME_NONNULL_BEGIN
 - (void)deleteBucket:(AWSS3DeleteBucketRequest *)request completionHandler:(void (^ _Nullable)(NSError * _Nullable error))completionHandler;
 
 /**
+ Deletes an analytics configuration for the bucket (specified by the analytics configuration ID).
+ 
+ @param request A container for the necessary parameters to execute the DeleteBucketAnalyticsConfiguration service method.
+
+ @return An instance of `AWSTask`. On successful execution, `task.result` will be `nil`.
+ 
+ @see AWSS3DeleteBucketAnalyticsConfigurationRequest
+ */
+- (AWSTask *)deleteBucketAnalyticsConfiguration:(AWSS3DeleteBucketAnalyticsConfigurationRequest *)request;
+
+/**
+ Deletes an analytics configuration for the bucket (specified by the analytics configuration ID).
+ 
+ @param request A container for the necessary parameters to execute the DeleteBucketAnalyticsConfiguration service method.
+ @param completionHandler The completion handler to call when the load request is complete.
+                          `error` - An error object that indicates why the request failed, or `nil` if the request was successful.
+ 
+ @see AWSS3DeleteBucketAnalyticsConfigurationRequest
+ */
+- (void)deleteBucketAnalyticsConfiguration:(AWSS3DeleteBucketAnalyticsConfigurationRequest *)request completionHandler:(void (^ _Nullable)(NSError * _Nullable error))completionHandler;
+
+/**
  Deletes the cors configuration information set for the bucket.
  
  @param request A container for the necessary parameters to execute the DeleteBucketCors service method.
@@ -328,6 +361,28 @@ NS_ASSUME_NONNULL_BEGIN
  @see AWSS3DeleteBucketCorsRequest
  */
 - (void)deleteBucketCors:(AWSS3DeleteBucketCorsRequest *)request completionHandler:(void (^ _Nullable)(NSError * _Nullable error))completionHandler;
+
+/**
+ Deletes an inventory configuration (identified by the inventory ID) from the bucket.
+ 
+ @param request A container for the necessary parameters to execute the DeleteBucketInventoryConfiguration service method.
+
+ @return An instance of `AWSTask`. On successful execution, `task.result` will be `nil`.
+ 
+ @see AWSS3DeleteBucketInventoryConfigurationRequest
+ */
+- (AWSTask *)deleteBucketInventoryConfiguration:(AWSS3DeleteBucketInventoryConfigurationRequest *)request;
+
+/**
+ Deletes an inventory configuration (identified by the inventory ID) from the bucket.
+ 
+ @param request A container for the necessary parameters to execute the DeleteBucketInventoryConfiguration service method.
+ @param completionHandler The completion handler to call when the load request is complete.
+                          `error` - An error object that indicates why the request failed, or `nil` if the request was successful.
+ 
+ @see AWSS3DeleteBucketInventoryConfigurationRequest
+ */
+- (void)deleteBucketInventoryConfiguration:(AWSS3DeleteBucketInventoryConfigurationRequest *)request completionHandler:(void (^ _Nullable)(NSError * _Nullable error))completionHandler;
 
 /**
  Deletes the lifecycle configuration from the bucket.
@@ -352,6 +407,28 @@ NS_ASSUME_NONNULL_BEGIN
 - (void)deleteBucketLifecycle:(AWSS3DeleteBucketLifecycleRequest *)request completionHandler:(void (^ _Nullable)(NSError * _Nullable error))completionHandler;
 
 /**
+ Deletes a metrics configuration (specified by the metrics configuration ID) from the bucket.
+ 
+ @param request A container for the necessary parameters to execute the DeleteBucketMetricsConfiguration service method.
+
+ @return An instance of `AWSTask`. On successful execution, `task.result` will be `nil`.
+ 
+ @see AWSS3DeleteBucketMetricsConfigurationRequest
+ */
+- (AWSTask *)deleteBucketMetricsConfiguration:(AWSS3DeleteBucketMetricsConfigurationRequest *)request;
+
+/**
+ Deletes a metrics configuration (specified by the metrics configuration ID) from the bucket.
+ 
+ @param request A container for the necessary parameters to execute the DeleteBucketMetricsConfiguration service method.
+ @param completionHandler The completion handler to call when the load request is complete.
+                          `error` - An error object that indicates why the request failed, or `nil` if the request was successful.
+ 
+ @see AWSS3DeleteBucketMetricsConfigurationRequest
+ */
+- (void)deleteBucketMetricsConfiguration:(AWSS3DeleteBucketMetricsConfigurationRequest *)request completionHandler:(void (^ _Nullable)(NSError * _Nullable error))completionHandler;
+
+/**
  Deletes the policy from the bucket.
  
  @param request A container for the necessary parameters to execute the DeleteBucketPolicy service method.
@@ -374,7 +451,7 @@ NS_ASSUME_NONNULL_BEGIN
 - (void)deleteBucketPolicy:(AWSS3DeleteBucketPolicyRequest *)request completionHandler:(void (^ _Nullable)(NSError * _Nullable error))completionHandler;
 
 /**
- DeleteBucketReplication
+ Deletes the replication configuration from the bucket.
  
  @param request A container for the necessary parameters to execute the DeleteBucketReplication service method.
 
@@ -385,7 +462,7 @@ NS_ASSUME_NONNULL_BEGIN
 - (AWSTask *)deleteBucketReplication:(AWSS3DeleteBucketReplicationRequest *)request;
 
 /**
- DeleteBucketReplication
+ Deletes the replication configuration from the bucket.
  
  @param request A container for the necessary parameters to execute the DeleteBucketReplication service method.
  @param completionHandler The completion handler to call when the load request is complete.
@@ -465,6 +542,31 @@ NS_ASSUME_NONNULL_BEGIN
 - (void)deleteObject:(AWSS3DeleteObjectRequest *)request completionHandler:(void (^ _Nullable)(AWSS3DeleteObjectOutput * _Nullable response, NSError * _Nullable error))completionHandler;
 
 /**
+ Removes the tag-set from an existing object.
+ 
+ @param request A container for the necessary parameters to execute the DeleteObjectTagging service method.
+
+ @return An instance of `AWSTask`. On successful execution, `task.result` will contain an instance of `AWSS3DeleteObjectTaggingOutput`.
+ 
+ @see AWSS3DeleteObjectTaggingRequest
+ @see AWSS3DeleteObjectTaggingOutput
+ */
+- (AWSTask<AWSS3DeleteObjectTaggingOutput *> *)deleteObjectTagging:(AWSS3DeleteObjectTaggingRequest *)request;
+
+/**
+ Removes the tag-set from an existing object.
+ 
+ @param request A container for the necessary parameters to execute the DeleteObjectTagging service method.
+ @param completionHandler The completion handler to call when the load request is complete.
+                          `response` - A response object, or `nil` if the request failed.
+                          `error` - An error object that indicates why the request failed, or `nil` if the request was successful.
+ 
+ @see AWSS3DeleteObjectTaggingRequest
+ @see AWSS3DeleteObjectTaggingOutput
+ */
+- (void)deleteObjectTagging:(AWSS3DeleteObjectTaggingRequest *)request completionHandler:(void (^ _Nullable)(AWSS3DeleteObjectTaggingOutput * _Nullable response, NSError * _Nullable error))completionHandler;
+
+/**
  This operation enables you to delete multiple objects from a bucket using a single HTTP request. You may specify up to 1000 keys.
  
  @param request A container for the necessary parameters to execute the DeleteObjects service method.
@@ -488,6 +590,31 @@ NS_ASSUME_NONNULL_BEGIN
  @see AWSS3DeleteObjectsOutput
  */
 - (void)deleteObjects:(AWSS3DeleteObjectsRequest *)request completionHandler:(void (^ _Nullable)(AWSS3DeleteObjectsOutput * _Nullable response, NSError * _Nullable error))completionHandler;
+
+/**
+ Returns the accelerate configuration of a bucket.
+ 
+ @param request A container for the necessary parameters to execute the GetBucketAccelerateConfiguration service method.
+
+ @return An instance of `AWSTask`. On successful execution, `task.result` will contain an instance of `AWSS3GetBucketAccelerateConfigurationOutput`.
+ 
+ @see AWSS3GetBucketAccelerateConfigurationRequest
+ @see AWSS3GetBucketAccelerateConfigurationOutput
+ */
+- (AWSTask<AWSS3GetBucketAccelerateConfigurationOutput *> *)getBucketAccelerateConfiguration:(AWSS3GetBucketAccelerateConfigurationRequest *)request;
+
+/**
+ Returns the accelerate configuration of a bucket.
+ 
+ @param request A container for the necessary parameters to execute the GetBucketAccelerateConfiguration service method.
+ @param completionHandler The completion handler to call when the load request is complete.
+                          `response` - A response object, or `nil` if the request failed.
+                          `error` - An error object that indicates why the request failed, or `nil` if the request was successful.
+ 
+ @see AWSS3GetBucketAccelerateConfigurationRequest
+ @see AWSS3GetBucketAccelerateConfigurationOutput
+ */
+- (void)getBucketAccelerateConfiguration:(AWSS3GetBucketAccelerateConfigurationRequest *)request completionHandler:(void (^ _Nullable)(AWSS3GetBucketAccelerateConfigurationOutput * _Nullable response, NSError * _Nullable error))completionHandler;
 
 /**
  Gets the access control policy for the bucket.
@@ -515,6 +642,31 @@ NS_ASSUME_NONNULL_BEGIN
 - (void)getBucketAcl:(AWSS3GetBucketAclRequest *)request completionHandler:(void (^ _Nullable)(AWSS3GetBucketAclOutput * _Nullable response, NSError * _Nullable error))completionHandler;
 
 /**
+ Gets an analytics configuration for the bucket (specified by the analytics configuration ID).
+ 
+ @param request A container for the necessary parameters to execute the GetBucketAnalyticsConfiguration service method.
+
+ @return An instance of `AWSTask`. On successful execution, `task.result` will contain an instance of `AWSS3GetBucketAnalyticsConfigurationOutput`.
+ 
+ @see AWSS3GetBucketAnalyticsConfigurationRequest
+ @see AWSS3GetBucketAnalyticsConfigurationOutput
+ */
+- (AWSTask<AWSS3GetBucketAnalyticsConfigurationOutput *> *)getBucketAnalyticsConfiguration:(AWSS3GetBucketAnalyticsConfigurationRequest *)request;
+
+/**
+ Gets an analytics configuration for the bucket (specified by the analytics configuration ID).
+ 
+ @param request A container for the necessary parameters to execute the GetBucketAnalyticsConfiguration service method.
+ @param completionHandler The completion handler to call when the load request is complete.
+                          `response` - A response object, or `nil` if the request failed.
+                          `error` - An error object that indicates why the request failed, or `nil` if the request was successful.
+ 
+ @see AWSS3GetBucketAnalyticsConfigurationRequest
+ @see AWSS3GetBucketAnalyticsConfigurationOutput
+ */
+- (void)getBucketAnalyticsConfiguration:(AWSS3GetBucketAnalyticsConfigurationRequest *)request completionHandler:(void (^ _Nullable)(AWSS3GetBucketAnalyticsConfigurationOutput * _Nullable response, NSError * _Nullable error))completionHandler;
+
+/**
  Returns the cors configuration for the bucket.
  
  @param request A container for the necessary parameters to execute the GetBucketCors service method.
@@ -538,6 +690,31 @@ NS_ASSUME_NONNULL_BEGIN
  @see AWSS3GetBucketCorsOutput
  */
 - (void)getBucketCors:(AWSS3GetBucketCorsRequest *)request completionHandler:(void (^ _Nullable)(AWSS3GetBucketCorsOutput * _Nullable response, NSError * _Nullable error))completionHandler;
+
+/**
+ Returns an inventory configuration (identified by the inventory ID) from the bucket.
+ 
+ @param request A container for the necessary parameters to execute the GetBucketInventoryConfiguration service method.
+
+ @return An instance of `AWSTask`. On successful execution, `task.result` will contain an instance of `AWSS3GetBucketInventoryConfigurationOutput`.
+ 
+ @see AWSS3GetBucketInventoryConfigurationRequest
+ @see AWSS3GetBucketInventoryConfigurationOutput
+ */
+- (AWSTask<AWSS3GetBucketInventoryConfigurationOutput *> *)getBucketInventoryConfiguration:(AWSS3GetBucketInventoryConfigurationRequest *)request;
+
+/**
+ Returns an inventory configuration (identified by the inventory ID) from the bucket.
+ 
+ @param request A container for the necessary parameters to execute the GetBucketInventoryConfiguration service method.
+ @param completionHandler The completion handler to call when the load request is complete.
+                          `response` - A response object, or `nil` if the request failed.
+                          `error` - An error object that indicates why the request failed, or `nil` if the request was successful.
+ 
+ @see AWSS3GetBucketInventoryConfigurationRequest
+ @see AWSS3GetBucketInventoryConfigurationOutput
+ */
+- (void)getBucketInventoryConfiguration:(AWSS3GetBucketInventoryConfigurationRequest *)request completionHandler:(void (^ _Nullable)(AWSS3GetBucketInventoryConfigurationOutput * _Nullable response, NSError * _Nullable error))completionHandler;
 
 /**
  Deprecated, see the GetBucketLifecycleConfiguration operation.
@@ -640,6 +817,31 @@ NS_ASSUME_NONNULL_BEGIN
 - (void)getBucketLogging:(AWSS3GetBucketLoggingRequest *)request completionHandler:(void (^ _Nullable)(AWSS3GetBucketLoggingOutput * _Nullable response, NSError * _Nullable error))completionHandler;
 
 /**
+ Gets a metrics configuration (specified by the metrics configuration ID) from the bucket.
+ 
+ @param request A container for the necessary parameters to execute the GetBucketMetricsConfiguration service method.
+
+ @return An instance of `AWSTask`. On successful execution, `task.result` will contain an instance of `AWSS3GetBucketMetricsConfigurationOutput`.
+ 
+ @see AWSS3GetBucketMetricsConfigurationRequest
+ @see AWSS3GetBucketMetricsConfigurationOutput
+ */
+- (AWSTask<AWSS3GetBucketMetricsConfigurationOutput *> *)getBucketMetricsConfiguration:(AWSS3GetBucketMetricsConfigurationRequest *)request;
+
+/**
+ Gets a metrics configuration (specified by the metrics configuration ID) from the bucket.
+ 
+ @param request A container for the necessary parameters to execute the GetBucketMetricsConfiguration service method.
+ @param completionHandler The completion handler to call when the load request is complete.
+                          `response` - A response object, or `nil` if the request failed.
+                          `error` - An error object that indicates why the request failed, or `nil` if the request was successful.
+ 
+ @see AWSS3GetBucketMetricsConfigurationRequest
+ @see AWSS3GetBucketMetricsConfigurationOutput
+ */
+- (void)getBucketMetricsConfiguration:(AWSS3GetBucketMetricsConfigurationRequest *)request completionHandler:(void (^ _Nullable)(AWSS3GetBucketMetricsConfigurationOutput * _Nullable response, NSError * _Nullable error))completionHandler;
+
+/**
  Deprecated, see the GetBucketNotificationConfiguration operation.
  
  @param request A container for the necessary parameters to execute the GetBucketNotification service method.
@@ -715,7 +917,7 @@ NS_ASSUME_NONNULL_BEGIN
 - (void)getBucketPolicy:(AWSS3GetBucketPolicyRequest *)request completionHandler:(void (^ _Nullable)(AWSS3GetBucketPolicyOutput * _Nullable response, NSError * _Nullable error))completionHandler;
 
 /**
- GetBucketReplication
+ Returns the replication configuration of a bucket.
  
  @param request A container for the necessary parameters to execute the GetBucketReplication service method.
 
@@ -727,7 +929,7 @@ NS_ASSUME_NONNULL_BEGIN
 - (AWSTask<AWSS3GetBucketReplicationOutput *> *)getBucketReplication:(AWSS3GetBucketReplicationRequest *)request;
 
 /**
- GetBucketReplication
+ Returns the replication configuration of a bucket.
  
  @param request A container for the necessary parameters to execute the GetBucketReplication service method.
  @param completionHandler The completion handler to call when the load request is complete.
@@ -890,6 +1092,31 @@ NS_ASSUME_NONNULL_BEGIN
 - (void)getObjectAcl:(AWSS3GetObjectAclRequest *)request completionHandler:(void (^ _Nullable)(AWSS3GetObjectAclOutput * _Nullable response, NSError * _Nullable error))completionHandler;
 
 /**
+ Returns the tag-set of an object.
+ 
+ @param request A container for the necessary parameters to execute the GetObjectTagging service method.
+
+ @return An instance of `AWSTask`. On successful execution, `task.result` will contain an instance of `AWSS3GetObjectTaggingOutput`.
+ 
+ @see AWSS3GetObjectTaggingRequest
+ @see AWSS3GetObjectTaggingOutput
+ */
+- (AWSTask<AWSS3GetObjectTaggingOutput *> *)getObjectTagging:(AWSS3GetObjectTaggingRequest *)request;
+
+/**
+ Returns the tag-set of an object.
+ 
+ @param request A container for the necessary parameters to execute the GetObjectTagging service method.
+ @param completionHandler The completion handler to call when the load request is complete.
+                          `response` - A response object, or `nil` if the request failed.
+                          `error` - An error object that indicates why the request failed, or `nil` if the request was successful.
+ 
+ @see AWSS3GetObjectTaggingRequest
+ @see AWSS3GetObjectTaggingOutput
+ */
+- (void)getObjectTagging:(AWSS3GetObjectTaggingRequest *)request completionHandler:(void (^ _Nullable)(AWSS3GetObjectTaggingOutput * _Nullable response, NSError * _Nullable error))completionHandler;
+
+/**
  Return torrent files from a bucket.
  
  @param request A container for the necessary parameters to execute the GetObjectTorrent service method.
@@ -960,6 +1187,81 @@ NS_ASSUME_NONNULL_BEGIN
  @see AWSS3HeadObjectOutput
  */
 - (void)headObject:(AWSS3HeadObjectRequest *)request completionHandler:(void (^ _Nullable)(AWSS3HeadObjectOutput * _Nullable response, NSError * _Nullable error))completionHandler;
+
+/**
+ Lists the analytics configurations for the bucket.
+ 
+ @param request A container for the necessary parameters to execute the ListBucketAnalyticsConfigurations service method.
+
+ @return An instance of `AWSTask`. On successful execution, `task.result` will contain an instance of `AWSS3ListBucketAnalyticsConfigurationsOutput`.
+ 
+ @see AWSS3ListBucketAnalyticsConfigurationsRequest
+ @see AWSS3ListBucketAnalyticsConfigurationsOutput
+ */
+- (AWSTask<AWSS3ListBucketAnalyticsConfigurationsOutput *> *)listBucketAnalyticsConfigurations:(AWSS3ListBucketAnalyticsConfigurationsRequest *)request;
+
+/**
+ Lists the analytics configurations for the bucket.
+ 
+ @param request A container for the necessary parameters to execute the ListBucketAnalyticsConfigurations service method.
+ @param completionHandler The completion handler to call when the load request is complete.
+                          `response` - A response object, or `nil` if the request failed.
+                          `error` - An error object that indicates why the request failed, or `nil` if the request was successful.
+ 
+ @see AWSS3ListBucketAnalyticsConfigurationsRequest
+ @see AWSS3ListBucketAnalyticsConfigurationsOutput
+ */
+- (void)listBucketAnalyticsConfigurations:(AWSS3ListBucketAnalyticsConfigurationsRequest *)request completionHandler:(void (^ _Nullable)(AWSS3ListBucketAnalyticsConfigurationsOutput * _Nullable response, NSError * _Nullable error))completionHandler;
+
+/**
+ Returns a list of inventory configurations for the bucket.
+ 
+ @param request A container for the necessary parameters to execute the ListBucketInventoryConfigurations service method.
+
+ @return An instance of `AWSTask`. On successful execution, `task.result` will contain an instance of `AWSS3ListBucketInventoryConfigurationsOutput`.
+ 
+ @see AWSS3ListBucketInventoryConfigurationsRequest
+ @see AWSS3ListBucketInventoryConfigurationsOutput
+ */
+- (AWSTask<AWSS3ListBucketInventoryConfigurationsOutput *> *)listBucketInventoryConfigurations:(AWSS3ListBucketInventoryConfigurationsRequest *)request;
+
+/**
+ Returns a list of inventory configurations for the bucket.
+ 
+ @param request A container for the necessary parameters to execute the ListBucketInventoryConfigurations service method.
+ @param completionHandler The completion handler to call when the load request is complete.
+                          `response` - A response object, or `nil` if the request failed.
+                          `error` - An error object that indicates why the request failed, or `nil` if the request was successful.
+ 
+ @see AWSS3ListBucketInventoryConfigurationsRequest
+ @see AWSS3ListBucketInventoryConfigurationsOutput
+ */
+- (void)listBucketInventoryConfigurations:(AWSS3ListBucketInventoryConfigurationsRequest *)request completionHandler:(void (^ _Nullable)(AWSS3ListBucketInventoryConfigurationsOutput * _Nullable response, NSError * _Nullable error))completionHandler;
+
+/**
+ Lists the metrics configurations for the bucket.
+ 
+ @param request A container for the necessary parameters to execute the ListBucketMetricsConfigurations service method.
+
+ @return An instance of `AWSTask`. On successful execution, `task.result` will contain an instance of `AWSS3ListBucketMetricsConfigurationsOutput`.
+ 
+ @see AWSS3ListBucketMetricsConfigurationsRequest
+ @see AWSS3ListBucketMetricsConfigurationsOutput
+ */
+- (AWSTask<AWSS3ListBucketMetricsConfigurationsOutput *> *)listBucketMetricsConfigurations:(AWSS3ListBucketMetricsConfigurationsRequest *)request;
+
+/**
+ Lists the metrics configurations for the bucket.
+ 
+ @param request A container for the necessary parameters to execute the ListBucketMetricsConfigurations service method.
+ @param completionHandler The completion handler to call when the load request is complete.
+                          `response` - A response object, or `nil` if the request failed.
+                          `error` - An error object that indicates why the request failed, or `nil` if the request was successful.
+ 
+ @see AWSS3ListBucketMetricsConfigurationsRequest
+ @see AWSS3ListBucketMetricsConfigurationsOutput
+ */
+- (void)listBucketMetricsConfigurations:(AWSS3ListBucketMetricsConfigurationsRequest *)request completionHandler:(void (^ _Nullable)(AWSS3ListBucketMetricsConfigurationsOutput * _Nullable response, NSError * _Nullable error))completionHandler;
 
 /**
  Returns a list of all buckets owned by the authenticated sender of the request.
@@ -1062,6 +1364,31 @@ NS_ASSUME_NONNULL_BEGIN
 - (void)listObjects:(AWSS3ListObjectsRequest *)request completionHandler:(void (^ _Nullable)(AWSS3ListObjectsOutput * _Nullable response, NSError * _Nullable error))completionHandler;
 
 /**
+ Returns some or all (up to 1000) of the objects in a bucket. You can use the request parameters as selection criteria to return a subset of the objects in a bucket. Note: ListObjectsV2 is the revised List Objects API and we recommend you use this revised API for new application development.
+ 
+ @param request A container for the necessary parameters to execute the ListObjectsV2 service method.
+
+ @return An instance of `AWSTask`. On successful execution, `task.result` will contain an instance of `AWSS3ListObjectsV2Output`. On failed execution, `task.error` may contain an `NSError` with `AWSS3ErrorDomain` domain and the following error code: `AWSS3ErrorNoSuchBucket`.
+ 
+ @see AWSS3ListObjectsV2Request
+ @see AWSS3ListObjectsV2Output
+ */
+- (AWSTask<AWSS3ListObjectsV2Output *> *)listObjectsV2:(AWSS3ListObjectsV2Request *)request;
+
+/**
+ Returns some or all (up to 1000) of the objects in a bucket. You can use the request parameters as selection criteria to return a subset of the objects in a bucket. Note: ListObjectsV2 is the revised List Objects API and we recommend you use this revised API for new application development.
+ 
+ @param request A container for the necessary parameters to execute the ListObjectsV2 service method.
+ @param completionHandler The completion handler to call when the load request is complete.
+                          `response` - A response object, or `nil` if the request failed.
+                          `error` - An error object that indicates why the request failed, or `nil` if the request was successful. On failed execution, `error` may contain an `NSError` with `AWSS3ErrorDomain` domain and the following error code: `AWSS3ErrorNoSuchBucket`.
+ 
+ @see AWSS3ListObjectsV2Request
+ @see AWSS3ListObjectsV2Output
+ */
+- (void)listObjectsV2:(AWSS3ListObjectsV2Request *)request completionHandler:(void (^ _Nullable)(AWSS3ListObjectsV2Output * _Nullable response, NSError * _Nullable error))completionHandler;
+
+/**
  Lists the parts that have been uploaded for a specific multipart upload.
  
  @param request A container for the necessary parameters to execute the ListParts service method.
@@ -1087,6 +1414,28 @@ NS_ASSUME_NONNULL_BEGIN
 - (void)listParts:(AWSS3ListPartsRequest *)request completionHandler:(void (^ _Nullable)(AWSS3ListPartsOutput * _Nullable response, NSError * _Nullable error))completionHandler;
 
 /**
+ Sets the accelerate configuration of an existing bucket.
+ 
+ @param request A container for the necessary parameters to execute the PutBucketAccelerateConfiguration service method.
+
+ @return An instance of `AWSTask`. On successful execution, `task.result` will be `nil`.
+ 
+ @see AWSS3PutBucketAccelerateConfigurationRequest
+ */
+- (AWSTask *)putBucketAccelerateConfiguration:(AWSS3PutBucketAccelerateConfigurationRequest *)request;
+
+/**
+ Sets the accelerate configuration of an existing bucket.
+ 
+ @param request A container for the necessary parameters to execute the PutBucketAccelerateConfiguration service method.
+ @param completionHandler The completion handler to call when the load request is complete.
+                          `error` - An error object that indicates why the request failed, or `nil` if the request was successful.
+ 
+ @see AWSS3PutBucketAccelerateConfigurationRequest
+ */
+- (void)putBucketAccelerateConfiguration:(AWSS3PutBucketAccelerateConfigurationRequest *)request completionHandler:(void (^ _Nullable)(NSError * _Nullable error))completionHandler;
+
+/**
  Sets the permissions on a bucket using access control lists (ACL).
  
  @param request A container for the necessary parameters to execute the PutBucketAcl service method.
@@ -1109,6 +1458,28 @@ NS_ASSUME_NONNULL_BEGIN
 - (void)putBucketAcl:(AWSS3PutBucketAclRequest *)request completionHandler:(void (^ _Nullable)(NSError * _Nullable error))completionHandler;
 
 /**
+ Sets an analytics configuration for the bucket (specified by the analytics configuration ID).
+ 
+ @param request A container for the necessary parameters to execute the PutBucketAnalyticsConfiguration service method.
+
+ @return An instance of `AWSTask`. On successful execution, `task.result` will be `nil`.
+ 
+ @see AWSS3PutBucketAnalyticsConfigurationRequest
+ */
+- (AWSTask *)putBucketAnalyticsConfiguration:(AWSS3PutBucketAnalyticsConfigurationRequest *)request;
+
+/**
+ Sets an analytics configuration for the bucket (specified by the analytics configuration ID).
+ 
+ @param request A container for the necessary parameters to execute the PutBucketAnalyticsConfiguration service method.
+ @param completionHandler The completion handler to call when the load request is complete.
+                          `error` - An error object that indicates why the request failed, or `nil` if the request was successful.
+ 
+ @see AWSS3PutBucketAnalyticsConfigurationRequest
+ */
+- (void)putBucketAnalyticsConfiguration:(AWSS3PutBucketAnalyticsConfigurationRequest *)request completionHandler:(void (^ _Nullable)(NSError * _Nullable error))completionHandler;
+
+/**
  Sets the cors configuration for a bucket.
  
  @param request A container for the necessary parameters to execute the PutBucketCors service method.
@@ -1129,6 +1500,28 @@ NS_ASSUME_NONNULL_BEGIN
  @see AWSS3PutBucketCorsRequest
  */
 - (void)putBucketCors:(AWSS3PutBucketCorsRequest *)request completionHandler:(void (^ _Nullable)(NSError * _Nullable error))completionHandler;
+
+/**
+ Adds an inventory configuration (identified by the inventory ID) from the bucket.
+ 
+ @param request A container for the necessary parameters to execute the PutBucketInventoryConfiguration service method.
+
+ @return An instance of `AWSTask`. On successful execution, `task.result` will be `nil`.
+ 
+ @see AWSS3PutBucketInventoryConfigurationRequest
+ */
+- (AWSTask *)putBucketInventoryConfiguration:(AWSS3PutBucketInventoryConfigurationRequest *)request;
+
+/**
+ Adds an inventory configuration (identified by the inventory ID) from the bucket.
+ 
+ @param request A container for the necessary parameters to execute the PutBucketInventoryConfiguration service method.
+ @param completionHandler The completion handler to call when the load request is complete.
+                          `error` - An error object that indicates why the request failed, or `nil` if the request was successful.
+ 
+ @see AWSS3PutBucketInventoryConfigurationRequest
+ */
+- (void)putBucketInventoryConfiguration:(AWSS3PutBucketInventoryConfigurationRequest *)request completionHandler:(void (^ _Nullable)(NSError * _Nullable error))completionHandler;
 
 /**
  Deprecated, see the PutBucketLifecycleConfiguration operation.
@@ -1195,6 +1588,28 @@ NS_ASSUME_NONNULL_BEGIN
  @see AWSS3PutBucketLoggingRequest
  */
 - (void)putBucketLogging:(AWSS3PutBucketLoggingRequest *)request completionHandler:(void (^ _Nullable)(NSError * _Nullable error))completionHandler;
+
+/**
+ Sets a metrics configuration (specified by the metrics configuration ID) for the bucket.
+ 
+ @param request A container for the necessary parameters to execute the PutBucketMetricsConfiguration service method.
+
+ @return An instance of `AWSTask`. On successful execution, `task.result` will be `nil`.
+ 
+ @see AWSS3PutBucketMetricsConfigurationRequest
+ */
+- (AWSTask *)putBucketMetricsConfiguration:(AWSS3PutBucketMetricsConfigurationRequest *)request;
+
+/**
+ Sets a metrics configuration (specified by the metrics configuration ID) for the bucket.
+ 
+ @param request A container for the necessary parameters to execute the PutBucketMetricsConfiguration service method.
+ @param completionHandler The completion handler to call when the load request is complete.
+                          `error` - An error object that indicates why the request failed, or `nil` if the request was successful.
+ 
+ @see AWSS3PutBucketMetricsConfigurationRequest
+ */
+- (void)putBucketMetricsConfiguration:(AWSS3PutBucketMetricsConfigurationRequest *)request completionHandler:(void (^ _Nullable)(NSError * _Nullable error))completionHandler;
 
 /**
  Deprecated, see the PutBucketNotificationConfiguraiton operation.
@@ -1423,29 +1838,29 @@ NS_ASSUME_NONNULL_BEGIN
 - (void)putObjectAcl:(AWSS3PutObjectAclRequest *)request completionHandler:(void (^ _Nullable)(AWSS3PutObjectAclOutput * _Nullable response, NSError * _Nullable error))completionHandler;
 
 /**
- Creates a copy of an object that is already stored in Amazon S3.
+ Sets the supplied tag-set to an object that already exists in a bucket
  
- @param request A container for the necessary parameters to execute the ReplicateObject service method.
+ @param request A container for the necessary parameters to execute the PutObjectTagging service method.
 
- @return An instance of `AWSTask`. On successful execution, `task.result` will contain an instance of `AWSS3ReplicateObjectOutput`. On failed execution, `task.error` may contain an `NSError` with `AWSS3ErrorDomain` domain and the following error code: `AWSS3ErrorObjectNotInActiveTier`.
+ @return An instance of `AWSTask`. On successful execution, `task.result` will contain an instance of `AWSS3PutObjectTaggingOutput`.
  
- @see AWSS3ReplicateObjectRequest
- @see AWSS3ReplicateObjectOutput
+ @see AWSS3PutObjectTaggingRequest
+ @see AWSS3PutObjectTaggingOutput
  */
-- (AWSTask<AWSS3ReplicateObjectOutput *> *)replicateObject:(AWSS3ReplicateObjectRequest *)request;
+- (AWSTask<AWSS3PutObjectTaggingOutput *> *)putObjectTagging:(AWSS3PutObjectTaggingRequest *)request;
 
 /**
- Creates a copy of an object that is already stored in Amazon S3.
+ Sets the supplied tag-set to an object that already exists in a bucket
  
- @param request A container for the necessary parameters to execute the ReplicateObject service method.
+ @param request A container for the necessary parameters to execute the PutObjectTagging service method.
  @param completionHandler The completion handler to call when the load request is complete.
                           `response` - A response object, or `nil` if the request failed.
-                          `error` - An error object that indicates why the request failed, or `nil` if the request was successful. On failed execution, `error` may contain an `NSError` with `AWSS3ErrorDomain` domain and the following error code: `AWSS3ErrorObjectNotInActiveTier`.
+                          `error` - An error object that indicates why the request failed, or `nil` if the request was successful.
  
- @see AWSS3ReplicateObjectRequest
- @see AWSS3ReplicateObjectOutput
+ @see AWSS3PutObjectTaggingRequest
+ @see AWSS3PutObjectTaggingOutput
  */
-- (void)replicateObject:(AWSS3ReplicateObjectRequest *)request completionHandler:(void (^ _Nullable)(AWSS3ReplicateObjectOutput * _Nullable response, NSError * _Nullable error))completionHandler;
+- (void)putObjectTagging:(AWSS3PutObjectTaggingRequest *)request completionHandler:(void (^ _Nullable)(AWSS3PutObjectTaggingOutput * _Nullable response, NSError * _Nullable error))completionHandler;
 
 /**
  Restores an archived copy of an object back into Amazon S3

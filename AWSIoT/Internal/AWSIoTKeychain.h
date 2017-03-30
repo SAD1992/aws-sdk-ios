@@ -1,5 +1,5 @@
 //
-// Copyright 2010-2016 Amazon.com, Inc. or its affiliates. All Rights Reserved.
+// Copyright 2010-2017 Amazon.com, Inc. or its affiliates. All Rights Reserved.
 //
 // Licensed under the Apache License, Version 2.0 (the "License").
 // You may not use this file except in compliance with the License.
@@ -35,6 +35,8 @@ FOUNDATION_EXPORT NSString *const AWSIoTKeychainEndCertKeyTag;
 + (NSData *)base64Decode:(NSString *)str;
 + (NSData *)base64DecodeWithIgnoreUnknownSymbols:(NSString *)str;
 
++ (NSData *)certToDer:(NSString *)cert;
+
 + (BOOL)generateKeyPairWithPublicTag:(NSString *)publicTag privateTag:(NSString *)privateTag;
 + (BOOL)deleteAsymmetricKeysWithPublicTag:(NSString *)publicTag privateTag:(NSString *)privateTag;
 + (BOOL)isValidCertificate:(NSString *)tag;
@@ -42,6 +44,7 @@ FOUNDATION_EXPORT NSString *const AWSIoTKeychainEndCertKeyTag;
 + (BOOL)addCertificateFromPemFile:(NSString*)fileName withTag:(NSString*)tag;
 + (BOOL)addCertificate:(NSData *)cert;
 + (BOOL)addCertificate:(NSData*)cert withTag:(NSString*)tag;
++ (BOOL)addCertificateRef:(SecCertificateRef)certRef;
 + (BOOL)removeCertificateWithTag:(NSString*)tag;
 + (BOOL)removeCertificate;
 
@@ -55,7 +58,5 @@ FOUNDATION_EXPORT NSString *const AWSIoTKeychainEndCertKeyTag;
 + (BOOL)addPrivateKeyRef:(SecKeyRef)privkeyRef tag:(NSString *)tag;
 + (BOOL)addPrivateKey:(NSData *)privkey tag:(NSString *)tag;
 + (BOOL)deletePrivateKeyWithTag:(NSString*)tag;
-
-+ (SecIdentityRef)certificateFromP12:(NSString*)path password:(NSString *)password;
 
 @end

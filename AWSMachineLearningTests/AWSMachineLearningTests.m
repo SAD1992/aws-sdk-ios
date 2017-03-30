@@ -1,5 +1,5 @@
 //
-// Copyright 2010-2016 Amazon.com, Inc. or its affiliates. All Rights Reserved.
+// Copyright 2010-2017 Amazon.com, Inc. or its affiliates. All Rights Reserved.
 //
 // Licensed under the Apache License, Version 2.0 (the "License").
 // You may not use this file except in compliance with the License.
@@ -54,7 +54,34 @@
     }] continueWithBlock:^id(AWSTask *task) {
         XCTAssertEqual([task.result class], [AWSMachineLearningPredictOutput class]);
         XCTAssertNil(task.error);
-        XCTAssertNil(task.exception);
+        return nil;
+    }] waitUntilFinished];
+}
+
+- (void)testPredictWithExtraSlashEndpoint {
+    AWSMachineLearning *MachineLearning = [AWSMachineLearning defaultMachineLearning];
+
+    NSString *MLModelId = @"ml-UJdLGgO6l44";
+
+    AWSMachineLearningGetMLModelInput *getMLModelInput = [AWSMachineLearningGetMLModelInput new];
+    getMLModelInput.MLModelId = MLModelId;
+
+    [[[[MachineLearning getMLModel:getMLModelInput] continueWithSuccessBlock:^id(AWSTask *task) {
+        AWSMachineLearningGetMLModelOutput *getMLModelOutput = task.result;
+
+        AWSMachineLearningPredictInput *predictInput = [AWSMachineLearningPredictInput new];
+        NSString *endpointUrl = getMLModelOutput.endpointInfo.endpointUrl;
+        if (![endpointUrl hasSuffix:@"/"]) {
+            endpointUrl = [NSString stringWithFormat:@"%@/", endpointUrl];
+        }
+        predictInput.predictEndpoint = endpointUrl;
+        predictInput.MLModelId = MLModelId;
+        predictInput.record = @{};
+
+        return [MachineLearning predict:predictInput];
+    }] continueWithBlock:^id(AWSTask *task) {
+        XCTAssertEqual([task.result class], [AWSMachineLearningPredictOutput class]);
+        XCTAssertNil(task.error);
         return nil;
     }] waitUntilFinished];
 }

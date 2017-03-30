@@ -1,5 +1,5 @@
 //
-// Copyright 2010-2016 Amazon.com, Inc. or its affiliates. All Rights Reserved.
+// Copyright 2010-2017 Amazon.com, Inc. or its affiliates. All Rights Reserved.
 //
 // Licensed under the Apache License, Version 2.0 (the "License").
 // You may not use this file except in compliance with the License.
@@ -14,6 +14,7 @@
 //
 
 #import <Foundation/Foundation.h>
+#import "AWSServiceEnum.h"
 
 FOUNDATION_EXPORT NSString *const AWSDateRFC822DateFormat1;
 FOUNDATION_EXPORT NSString *const AWSDateISO8601DateFormat1;
@@ -85,6 +86,8 @@ FOUNDATION_EXPORT NSString *const AWSDateShortDateFormat2;
 - (NSString *)aws_md5String;
 - (NSString *)aws_md5StringLittleEndian;
 - (BOOL)aws_isVirtualHostedStyleCompliant;
+
+- (AWSRegionType)aws_regionTypeValue;
 
 @end
 

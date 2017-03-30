@@ -1,5 +1,5 @@
 //
-// Copyright 2010-2016 Amazon.com, Inc. or its affiliates. All Rights Reserved.
+// Copyright 2010-2017 Amazon.com, Inc. or its affiliates. All Rights Reserved.
 //
 // Licensed under the Apache License, Version 2.0 (the "License").
 // You may not use this file except in compliance with the License.
@@ -40,10 +40,10 @@
 
  *Swift*
 
-     func application(application: UIApplication, didFinishLaunchingWithOptions launchOptions: [NSObject: AnyObject]?) -> Bool {
+     func application(_ application: UIApplication, didFinishLaunchingWithOptions launchOptions: [UIApplicationLaunchOptionsKey: Any]?) -> Bool {
          let credentialProvider = AWSCognitoCredentialsProvider(regionType: .USEast1, identityPoolId: "YourIdentityPoolId")
          let configuration = AWSServiceConfiguration(region: .USEast1, credentialsProvider: credentialProvider)
-         AWSServiceManager.defaultServiceManager().defaultServiceConfiguration = configuration
+         AWSServiceManager.default().defaultServiceConfiguration = configuration
 
          return true
      }
@@ -64,7 +64,7 @@
 
  *Swift*
 
-     let IoTManager = AWSIoTManager.defaultIoTManager()
+     let IoTManager = AWSIoTManager.default()
 
  *Objective-C*
 
@@ -81,10 +81,10 @@
 
  *Swift*
 
-     func application(application: UIApplication, didFinishLaunchingWithOptions launchOptions: [NSObject: AnyObject]?) -> Bool {
+     func application(_ application: UIApplication, didFinishLaunchingWithOptions launchOptions: [UIApplicationLaunchOptionsKey: Any]?) -> Bool {
          let credentialProvider = AWSCognitoCredentialsProvider(regionType: .USEast1, identityPoolId: "YourIdentityPoolId")
          let configuration = AWSServiceConfiguration(region: .USWest2, credentialsProvider: credentialProvider)
-         AWSIoTManager.registerIoTManagerWithConfiguration(configuration, forKey: "USWest2IoTManager")
+         AWSIoTManager.register(with: configuration!, forKey: "USWest2IoTManager")
 
          return true
      }
@@ -123,16 +123,16 @@
 + (void)registerIoTManagerWithConfiguration:(AWSServiceConfiguration *)configuration forKey:(NSString *)key;
 
 /**
- Retrieves the service client associated with the key. You need to call `+ registerIoTManagerWithConfiguration:forKey:` before invoking this method. If `+ registerIoTManagerWithConfiguration:forKey:` has not been called in advance or the key does not exist, this method returns `nil`.
+ Retrieves the service client associated with the key. You need to call `+ registerIoTManagerWithConfiguration:forKey:` before invoking this method.
 
  For example, set the default service configuration in `- application:didFinishLaunchingWithOptions:`
 
  *Swift*
 
-     func application(application: UIApplication, didFinishLaunchingWithOptions launchOptions: [NSObject: AnyObject]?) -> Bool {
+     func application(_ application: UIApplication, didFinishLaunchingWithOptions launchOptions: [UIApplicationLaunchOptionsKey: Any]?) -> Bool {
          let credentialProvider = AWSCognitoCredentialsProvider(regionType: .USEast1, identityPoolId: "YourIdentityPoolId")
          let configuration = AWSServiceConfiguration(region: .USWest2, credentialsProvider: credentialProvider)
-         AWSIoTManager.registerIoTManagerWithConfiguration(configuration, forKey: "USWest2IoTManager")
+         AWSIoTManager.register(with: configuration!, forKey: "USWest2IoTManager")
 
          return true
      }
@@ -183,7 +183,25 @@
  *
  *  @param callback When new certificate is created the function of block will be called with an instance of `AWSIOTDescribeCertificateResponse`
  */
-- (void)createKeysAndCertificateFromCsr:(NSDictionary *)csrDictionary callback:(void (^)(AWSIoTCreateCertificateResponse *mainResponse))callback;
+- (void)createKeysAndCertificateFromCsr:(NSDictionary<NSString *, NSString*> *)csrDictionary callback:(void (^)(AWSIoTCreateCertificateResponse *mainResponse))callback;
+
+/**
+  * Import PKCS12 identity into keychain.  This method allows you to import an
+  * identity created using the AWS console or CLI into the keychain.  The identity is
+  * contained in PKCS12 data; you can create PKCS12 files (suffix .p12) using openssl
+  * as follows:
+  *
+  *   openssl pkcs12 -export -in cert.pem -inkey key.pem -CAfile root-ca.crt -out awsiot-identity.p12
+  *
+  * @param pkcs12Data pkcs12 raw data. Will only import the first item.
+  *
+  * @param passPhrase Pass phrase used to decrypt the pkcs12 data.
+  *
+  * @param certificateId Unique identifier used to find the key/certificate for use.
+  *
+  */
++ (BOOL)importIdentityFromPKCS12Data:(NSData *)pkcs12Data passPhrase:(NSString *)passPhrase certificateId:(NSString *)certificateId;
+
 
 /**
  *  Validates the certificate with the given identifier of certificate.

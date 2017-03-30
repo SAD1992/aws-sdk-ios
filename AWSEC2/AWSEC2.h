@@ -1,5 +1,5 @@
 //
-// Copyright 2010-2016 Amazon.com, Inc. or its affiliates. All Rights Reserved.
+// Copyright 2010-2017 Amazon.com, Inc. or its affiliates. All Rights Reserved.
 //
 // Licensed under the Apache License, Version 2.0 (the "License").
 // You may not use this file except in compliance with the License.
@@ -14,5 +14,12 @@
 //
 
 #import <Foundation/Foundation.h>
+
+//! Project version number for AWSEC2.
+FOUNDATION_EXPORT double AWSEC2VersionNumber;
+
+//! Project version string for AWSEC2.
+FOUNDATION_EXPORT const unsigned char AWSEC2VersionString[];
+
 #import <AWSCore/AWSCore.h>
 #import "AWSEC2Service.h"

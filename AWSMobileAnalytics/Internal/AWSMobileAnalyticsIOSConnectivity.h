@@ -1,5 +1,5 @@
 //
-// Copyright 2010-2016 Amazon.com, Inc. or its affiliates. All Rights Reserved.
+// Copyright 2010-2017 Amazon.com, Inc. or its affiliates. All Rights Reserved.
 //
 // Licensed under the Apache License, Version 2.0 (the "License").
 // You may not use this file except in compliance with the License.
@@ -16,18 +16,20 @@
 #import <Foundation/Foundation.h>
 #import "AWSMobileAnalyticsConnectivity.h"
 
-@class AWSReachability;
+@class AWSKSReachability;
 
 @interface AWSMobileAnalyticsIOSConnectivity : NSObject<AWSMobileAnalyticsConnectivity>
 
--(id) initWithReachability:(AWSReachability*) theReachability;
+@property (nonatomic, readonly) AWSKSReachability* reachability;
 
-@property (nonatomic, readonly) AWSReachability* reachability;
++ (instancetype)defaultConnectivity;
 
 -(BOOL) isConnected;
 
 -(BOOL) hasWifi;
 
--(BOOL) hasWAN;
+-(BOOL) hasWANOnly;
+
+
 
 @end

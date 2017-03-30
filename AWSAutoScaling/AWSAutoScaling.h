@@ -1,5 +1,5 @@
 //
-// Copyright 2010-2016 Amazon.com, Inc. or its affiliates. All Rights Reserved.
+// Copyright 2010-2017 Amazon.com, Inc. or its affiliates. All Rights Reserved.
 //
 // Licensed under the Apache License, Version 2.0 (the "License").
 // You may not use this file except in compliance with the License.
@@ -14,5 +14,12 @@
 //
 
 #import <Foundation/Foundation.h>
+
+//! Project version number for AWSAutoScaling.
+FOUNDATION_EXPORT double AWSAutoScalingVersionNumber;
+
+//! Project version string for AWSAutoScaling.
+FOUNDATION_EXPORT const unsigned char AWSAutoScalingVersionString[];
+
 #import <AWSCore/AWSCore.h>
 #import "AWSAutoScalingService.h"

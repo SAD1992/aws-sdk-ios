@@ -1,5 +1,5 @@
 //
-// Copyright 2010-2016 Amazon.com, Inc. or its affiliates. All Rights Reserved.
+// Copyright 2010-2017 Amazon.com, Inc. or its affiliates. All Rights Reserved.
 //
 // Licensed under the Apache License, Version 2.0 (the "License").
 // You may not use this file except in compliance with the License.
@@ -14,5 +14,12 @@
 //
 
 #import <Foundation/Foundation.h>
+
+//! Project version number for AWSSimpleDB.
+FOUNDATION_EXPORT double AWSSimpleDBVersionNumber;
+
+//! Project version string for AWSSimpleDB.
+FOUNDATION_EXPORT const unsigned char AWSSimpleDBVersionString[];
+
 #import <AWSCore/AWSCore.h>
 #import "AWSSimpleDBService.h"

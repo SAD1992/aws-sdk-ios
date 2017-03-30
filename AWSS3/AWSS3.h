@@ -1,5 +1,5 @@
 //
-// Copyright 2010-2016 Amazon.com, Inc. or its affiliates. All Rights Reserved.
+// Copyright 2010-2017 Amazon.com, Inc. or its affiliates. All Rights Reserved.
 //
 // Licensed under the Apache License, Version 2.0 (the "License").
 // You may not use this file except in compliance with the License.
@@ -14,6 +14,13 @@
 //
 
 #import <Foundation/Foundation.h>
+
+//! Project version number for AWSS3.
+FOUNDATION_EXPORT double AWSS3VersionNumber;
+
+//! Project version string for AWSS3.
+FOUNDATION_EXPORT const unsigned char AWSS3VersionString[];
+
 #import <AWSCore/AWSCore.h>
 #import "AWSS3Service.h"
 #import "AWSS3TransferManager.h"

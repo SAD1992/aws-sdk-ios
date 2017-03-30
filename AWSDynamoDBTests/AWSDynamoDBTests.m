@@ -1,5 +1,5 @@
 //
-// Copyright 2010-2016 Amazon.com, Inc. or its affiliates. All Rights Reserved.
+// Copyright 2010-2017 Amazon.com, Inc. or its affiliates. All Rights Reserved.
 //
 // Licensed under the Apache License, Version 2.0 (the "License").
 // You may not use this file except in compliance with the License.
@@ -221,6 +221,7 @@ static NSString *table2Name = nil;
     }] waitUntilFinished];
 }
 
+/* Testing a cancelation of a quick request is not reliable.
 - (void)testCancelDescribeTable {
     AWSDynamoDB *dynamoDB = [AWSDynamoDB defaultDynamoDB];
 
@@ -240,6 +241,7 @@ static NSString *table2Name = nil;
 
     [task waitUntilFinished];
 }
+*/
 
 - (void)testListTables {
     AWSDynamoDB *dynamoDB = [AWSDynamoDB defaultDynamoDB];
